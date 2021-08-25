@@ -18,7 +18,8 @@ namespace SuppliesPriceLister
         public SupplierDataMap()
         {
             AutoMap(CultureInfo.InvariantCulture);
-            Map(m => m.Price).Convert(d => d.Value.Price.ToString("C2"));
+            Map(m => m.Price).Convert(
+                d => d.Value.Price.ToString("C2", new CultureInfo("EN-au")));
         }
     }
 
@@ -26,10 +27,14 @@ namespace SuppliesPriceLister
     {
         static async Task Main(string[] args)
         {
-            var scope = Configure();
             if (args.Length == 0)
+            {
                 Console.WriteLine("params <partner>:<file>");
+                return;
+            }
             
+            var scope = Configure();
+
             var data = new List<SupplierData>();
             foreach (var file in args)
             {
@@ -45,6 +50,7 @@ namespace SuppliesPriceLister
                 
             var writer = new CsvWriter(Console.Out, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
+                HasHeaderRecord = false,
                 Delimiter = ", "
             });
             writer.Context.RegisterClassMap<SupplierDataMap>();
